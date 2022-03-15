@@ -43,6 +43,11 @@ class Query:
     def select(self, index_value, index_column, query_columns):
         record = self.table.select_record(index_value, index_column, query_columns)
         return record
+    
+    def select_version(self, index_value, index_column, query_columns, relative_version):
+        pass
+    
+    
     """
     # Update a record with specified key and columns
     # Returns True if update is succesful
@@ -65,6 +70,9 @@ class Query:
     def sum(self, start_range, end_range, aggregate_column_index):
         return self.table.sum_range(start_range, end_range, aggregate_column_index)
 
+    
+    def sum_version(self, start_range, end_range, aggregate_column_index, relative_version):
+        pass
     """
     incremenets one column of the record
     this implementation should work if your select and update queries already work
