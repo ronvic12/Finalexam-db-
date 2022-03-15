@@ -1,0 +1,3 @@
+class ABORTEXCEPTION(Exception):
+
+	pass

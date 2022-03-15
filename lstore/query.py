@@ -1,6 +1,4 @@
-from lstore.table import Table, Record
-from lstore.index import Index
-
+from lstore.threadManager import initializeQuery
 
 class Query:
     """
@@ -12,7 +10,6 @@ class Query:
 
     def __init__(self, table):
         self.table = table
-        pass
 
     """
     # internal Method
@@ -22,7 +19,7 @@ class Query:
     """
 
     def delete(self, primary_key):
-        pass
+        return self.table.delete_record(primary_key)
     """
     # Insert a record with specified columns
     # Return True upon succesful insertion
@@ -30,8 +27,8 @@ class Query:
     """
 
     def insert(self, *columns):
-        schema_encoding = '0' * self.table.num_columns
-        pass
+        initializeQuery('insert')
+        return self.table.add_record(columns)
 
     """
     # Read a record with specified key
@@ -44,22 +41,8 @@ class Query:
     """
 
     def select(self, index_value, index_column, query_columns):
-        pass
-
-    """
-    # Read a record with specified key
-    # :param index_value: the value of index you want to search
-    # :param index_column: the column number of index you want to search based on
-    # :param query_columns: what columns to return. array of 1 or 0 values.
-    # :param relative_version: the relative version of the record you need to retreive.
-    # Returns a list of Record objects upon success
-    # Returns False if record locked by TPL
-    # Assume that select will never be called on a key that doesn't exist
-    """
-
-    def select_version(self, index_value, index_column, query_columns, relative_version):
-        pass
-
+        record = self.table.select_record(index_value, index_column, query_columns)
+        return record
     """
     # Update a record with specified key and columns
     # Returns True if update is succesful
@@ -67,7 +50,8 @@ class Query:
     """
 
     def update(self, primary_key, *columns):
-        pass
+        initializeQuery('update')
+        return self.table.update_record(primary_key, columns)
 
     """
     :param start_range: int         # Start of the key range to aggregate 
@@ -79,20 +63,7 @@ class Query:
     """
 
     def sum(self, start_range, end_range, aggregate_column_index):
-        pass
-
-    """
-    :param start_range: int         # Start of the key range to aggregate 
-    :param end_range: int           # End of the key range to aggregate 
-    :param aggregate_columns: int  # Index of desired column to aggregate
-    :param relative_version: the relative version of the record you need to retreive.
-    # this function is only called on the primary key.
-    # Returns the summation of the given range upon success
-    # Returns False if no record exists in the given range
-    """
-
-    def sum_version(self, start_range, end_range, aggregate_column_index, relative_version):
-        pass
+        return self.table.sum_range(start_range, end_range, aggregate_column_index)
 
     """
     incremenets one column of the record
@@ -105,9 +76,8 @@ class Query:
 
     def increment(self, key, column):
         r = self.select(key, self.table.key, [1] * self.table.num_columns)[0]
-        if r is not False:
+        if r:
             updated_columns = [None] * self.table.num_columns
             updated_columns[column] = r[column] + 1
-            u = self.update(key, *updated_columns)
-            return u
+            return self.update(key, *updated_columns)
         return False
